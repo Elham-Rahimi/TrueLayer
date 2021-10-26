@@ -1,4 +1,4 @@
-﻿namespace Pokedex.Services.PokemonService.Contracts
+﻿namespace Pokedex.Services.PokemonBuilder
 {
     public class Pokemon
     {

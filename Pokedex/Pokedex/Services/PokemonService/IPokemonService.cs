@@ -1,4 +1,4 @@
-﻿using Pokedex.Services.PokemonService.Contracts;
+﻿using Pokedex.Services.PokemonBuilder;
 using System.Threading.Tasks;
 
 namespace Pokedex.Services.PokemonService

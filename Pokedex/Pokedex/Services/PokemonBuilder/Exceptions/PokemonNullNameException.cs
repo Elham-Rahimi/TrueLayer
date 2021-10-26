@@ -1,11 +1,11 @@
 ﻿using Pokedex.Exceptions;
 using System.Net;
 
-namespace Pokedex.Services.PokemonService.Exceptions
+namespace Pokedex.Services.PokemonBuilder.Exceptions
 {
-    public class PokemonNameNullException : ApplicationException
+    public class PokemonNullNameException : ApplicationException
     {
-        public PokemonNameNullException() :
+        public PokemonNullNameException() :
             base((int)HttpStatusCode.UnprocessableEntity, "pokemon name can't be null or empty.")
         {
         }

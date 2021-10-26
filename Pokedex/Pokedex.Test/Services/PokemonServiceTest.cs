@@ -9,6 +9,7 @@ using Pokedex.Services.PokemonService.Exceptions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Pokedex.Services.PokemonBuilder;
 
 namespace Pokedex.Test.Services
 {
@@ -37,6 +38,10 @@ namespace Pokedex.Test.Services
             _mockConfiguration
                 .Setup(x => x[It.Is<string>(s => s == "Pokedex:PokeBaseUrl")])
                 .Returns(url);
+
+            _mockConfiguration
+                .Setup(x => x[It.Is<string>(s => s == "Pokedex:DescriptionLanguage")])
+                .Returns("en");
 
             _mockApiClient
                 .Setup(x => x.GetAsync<PokemonSpecies>(It.IsAny<string>()))
@@ -84,7 +89,7 @@ namespace Pokedex.Test.Services
             //Arrange
             //Act
             //Assert
-            await Assert.ThrowsAsync<PokemonNameNullException>(()
+            await Assert.ThrowsAsync<EntryNameNullException>(()
                 => _pokemonService.GetAsync(pokemonName));
         }
 

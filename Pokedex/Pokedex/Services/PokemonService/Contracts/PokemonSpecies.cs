@@ -10,7 +10,7 @@ namespace Pokedex.Services.PokemonService.Contracts
 
 
         [JsonProperty("is_legendary")]
-        public bool IsLegendary { get; set; }
+        public bool? IsLegendary { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }

@@ -28,7 +28,7 @@ namespace Pokedex.Services.ApiClient
                 throw new ApiClientNotFoundException();
             }
             var resultModel = JsonConvert.DeserializeObject<T>(response.Content);
-            //error on jason convert
+            //error on json convert
             return resultModel;
         }
     }

@@ -4,8 +4,8 @@ using Pokedex.Controllers;
 using Pokedex.Exceptions;
 using Pokedex.Models;
 using Pokedex.Services.ApiClient.Exceptions;
+using Pokedex.Services.PokemonBuilder;
 using Pokedex.Services.PokemonService;
-using Pokedex.Services.PokemonService.Contracts;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -75,7 +75,7 @@ namespace Pokedex.Test.Controllers
             var name = "pidgeot";
             _mockPokemonService
                 .Setup(x => x.GetAsync(name))
-                .Throws<NullResponseException>();
+                .ReturnsAsync((Pokemon)null);
 
             //Act
 
