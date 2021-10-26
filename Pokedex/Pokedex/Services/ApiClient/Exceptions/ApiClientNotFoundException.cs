@@ -1,6 +1,7 @@
-﻿using System.Net;
+﻿using Pokedex.Exceptions;
+using System.Net;
 
-namespace Pokedex.Exceptions
+namespace Pokedex.Services.ApiClient.Exceptions
 {
     public class ApiClientNotFoundException : ApplicationException
     {

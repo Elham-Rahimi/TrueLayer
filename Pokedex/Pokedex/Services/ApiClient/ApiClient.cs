@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net;
 using Pokedex.Exceptions;
+using Pokedex.Services.ApiClient.Exceptions;
 
 namespace Pokedex.Services.ApiClient
 {

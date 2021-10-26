@@ -1,6 +1,7 @@
 ﻿using Moq;
 using Pokedex.Exceptions;
 using Pokedex.Services.ApiClient;
+using Pokedex.Services.ApiClient.Exceptions;
 using RestSharp;
 using System;
 using System.Net;

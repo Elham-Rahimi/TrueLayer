@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Pokedex.Services.ApiClient;
+using Pokedex.Services.PokemonService;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace Pokedex
             });
             services.AddTransient<IRestClient, RestClient>();
             services.AddTransient<IApiClient, ApiClient>();
+            services.AddTransient<IPokemonService, PokemonService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
