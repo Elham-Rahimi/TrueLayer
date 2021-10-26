@@ -30,10 +30,6 @@ namespace Pokedex.Services.PokemonService
             }
 
             var response = await _apiClient.GetAsync<PokemonSpecies>(GetPokeBaseUrl(name));
-            if (response == null)
-            {
-                throw new NullResponseException();
-            }
 
             return _pokemonBuilder.Init(response)
                 .WithName()

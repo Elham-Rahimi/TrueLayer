@@ -16,75 +16,47 @@ namespace Pokedex.Test.Services
     public class PokemonServiceTest
     {
         private Mock<IApiClient> _mockApiClient;
-        private Mock<IConfiguration> _mockConfiguration;
         private PokemonService _pokemonService;
+        private IConfiguration _configuration;
 
         public PokemonServiceTest()
         {
+            _configuration = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .Build();
             _mockApiClient = new Mock<IApiClient>();
-            _mockConfiguration = new Mock<IConfiguration>();
-            _pokemonService = new PokemonService(_mockApiClient.Object, _mockConfiguration.Object);
+            _pokemonService = new PokemonService(_mockApiClient.Object, _configuration);
         }
 
         [Fact]
-        public async Task GIVEN_Valid_name_WHEN_Called_THEN_Return_Result()
+        public async Task GIVEN_Valid_Name_WHEN_Called_THEN_Return_Proper_Result()
         {
             //Arrange
-            var url = "http://somthing.com/";
-            var pokemonSpecies = MockPokemonSpecies();
-            var expectedDescription = pokemonSpecies.FlavorTextEntries
+            var species = MockPokemonSpecies();
+            var url = _configuration["Pokedex:PokeBaseUrl"].Replace("{NAME}", species.Name);
+            var expectedDescription = species.FlavorTextEntries
                         .FirstOrDefault(s => s.Language.Name.ToLower() == "en")?.FlavorText;
 
-            _mockConfiguration
-                .Setup(x => x[It.Is<string>(s => s == "Pokedex:PokeBaseUrl")])
-                .Returns(url);
-
-            _mockConfiguration
-                .Setup(x => x[It.Is<string>(s => s == "Pokedex:DescriptionLanguage")])
-                .Returns("en");
-
             _mockApiClient
-                .Setup(x => x.GetAsync<PokemonSpecies>(It.IsAny<string>()))
-                .ReturnsAsync(pokemonSpecies);
+                .Setup(x => x.GetAsync<PokemonSpecies>(url))
+                .ReturnsAsync(species);
 
             //Act
-            var response = await _pokemonService.GetAsync(pokemonSpecies.Name);
+            var result = await _pokemonService.GetAsync(species.Name);
 
             //Assert
-            Assert.NotNull(response);
-            Assert.Equal(typeof(Pokemon), response.GetType());
-            Assert.Equal(pokemonSpecies.Name, response.Name);
-            Assert.Equal(pokemonSpecies.IsLegendary, response.IsLegendary);
-            Assert.Equal(pokemonSpecies.Habitat.Name, response.Habitat);
-            Assert.Equal(expectedDescription, response.Description);
-        }
-
-        [Fact]
-        public async Task GIVEN_null_response_WHEN_Called_THEN_Throw_Exception()
-        {
-            //Arrange
-            var url = "http://somthing.com/";
-            var pokemonName = "mewtwo";
-
-            _mockConfiguration
-                .Setup(x => x[It.Is<string>(s => s == "Pokedex:PokeBaseUrl")])
-                .Returns(url);
-
-            _mockApiClient
-                .Setup(x => x.GetAsync<PokemonSpecies>(It.IsAny<string>()))
-                .ReturnsAsync((PokemonSpecies)null);
-
-            //Act
-
-            //Assert
-            await Assert.ThrowsAsync<NullResponseException>(()
-                => _pokemonService.GetAsync(pokemonName));
+            Assert.NotNull(result);
+            Assert.Equal(typeof(Pokemon), result.GetType());
+            Assert.Equal(species.Name, result.Name);
+            Assert.Equal(species.IsLegendary, result.IsLegendary);
+            Assert.Equal(species.Habitat.Name, result.Habitat);
+            Assert.Equal(expectedDescription, result.Description);
         }
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public async Task GIVEN_Invalid_name_WHEN_Called_THEN_Throw_Exception(string pokemonName)
+        public async Task GIVEN_Invalid_Name_WHEN_Called_THEN_Throw_Exception(string pokemonName)
         {
             //Arrange
             //Act

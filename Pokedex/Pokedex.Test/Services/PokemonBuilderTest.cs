@@ -16,14 +16,20 @@ namespace Pokedex.Test.Services
             _pokemonBuilder = new PokemonBuilder();
         }
 
-        [Fact]
-        public void GIVEN_Valid_species_WHEN_Build_THEN_Return_Pokemon()
+        [Theory]
+        [InlineData("mewtwo", "rare", true, "description")]
+        [InlineData("mewtwo", null, true, "description")]
+        [InlineData("mewtwo", "rare", null, "description")]
+        [InlineData("mewtwo", "rare", true, null)]
+        public void GIVEN_Valid_Input_WHEN_Build_THEN_Return_Proper_Pokemon(
+            string name,
+            string habitat,
+            bool? isLegendary,
+            string description)
         {
             //Arrang
-            var species = MockValisPokemonSpecies(false, false, false, false, false);
+            var species = MockPokemonSpecies(name, habitat, isLegendary, description);
             var languageKey = "en";
-            var expectedDescription = species.FlavorTextEntries
-                        .FirstOrDefault(s => s.Language.Name.ToLower() == languageKey)?.FlavorText;
 
             //Act
             var pokemon = _pokemonBuilder.Init(species)
@@ -34,17 +40,17 @@ namespace Pokedex.Test.Services
             //Assert
             Assert.NotNull(pokemon);
             Assert.IsType<Pokemon>(pokemon);
-            Assert.Equal(species.Name, pokemon.Name);
-            Assert.Equal(species.IsLegendary, pokemon.IsLegendary);
-            Assert.Equal(species.Habitat.Name, pokemon.Habitat);
-            Assert.Equal(expectedDescription, pokemon.Description);
+            Assert.Equal(name, pokemon.Name);
+            Assert.Equal(isLegendary, pokemon.IsLegendary);
+            Assert.Equal(habitat, pokemon.Habitat);
+            Assert.Equal(description, pokemon.Description);
         }
 
         [Fact]
-        public void GIVEN_null_name_WHEN_Build_THEN_throw_Exception()
+        public void GIVEN_Null_Name_WHEN_Build_THEN_throw_Exception()
         {
             //Arrang
-            var species = MockValisPokemonSpecies(isNameNull: true,false,false,false,false);
+            var species = MockPokemonSpecies(null, "rare", true, "description");
             var languageKey = "en";
             var expectedDescription = species.FlavorTextEntries?
                         .FirstOrDefault(s => s.Language?.Name?.ToLower() == languageKey)?.FlavorText;
@@ -58,116 +64,29 @@ namespace Pokedex.Test.Services
                 .Build());
         }
 
-        [Fact]
-        public void GIVEN_null_description_WHEN_Build_THEN_throw_Exception()
-        {
-            //Arrang
-            var species = MockValisPokemonSpecies(false, false, false, isDescriptionNull: true, false);
-            var languageKey = "en";
-            var expectedDescription = species.FlavorTextEntries?
-                        .FirstOrDefault(s => s.Language.Name.ToLower() == languageKey)?.FlavorText;
-
-            //Act
-            //Assert
-            Assert.Throws<PokemonNullDescriptionException>(
-                () => _pokemonBuilder.Init(species)
-                .WithHabitat().WithName().WithIsLegendary()
-                .WithDescription(languageKey)
-                .Build());
-        }
-
-        [Fact]
-        public void GIVEN_no_en_description_WHEN_Build_THEN_throw_Exception()
-        {
-            //Arrang
-            var species = MockValisPokemonSpecies(false, false, false, false, isEnDescriptionNull: true);
-            var languageKey = "en";
-            var expectedDescription = species.FlavorTextEntries?
-                        .FirstOrDefault(s => s.Language?.Name?.ToLower() == languageKey)?.FlavorText;
-
-            //Act
-            //Assert
-            Assert.Throws<PokemonNullDescriptionException>(
-                () => _pokemonBuilder.Init(species)
-                .WithHabitat().WithName().WithIsLegendary()
-                .WithDescription(languageKey)
-                .Build());
-        }
-
-        [Fact]
-        public void GIVEN_null_habitat_WHEN_Build_THEN_return_pokemon()
-        {
-            //Arrang
-            var species = MockValisPokemonSpecies(false, isHabitatNull: true, false, false, false);
-            var languageKey = "en";
-            var expectedDescription = species.FlavorTextEntries
-                        .FirstOrDefault(s => s.Language.Name.ToLower() == languageKey)?.FlavorText;
-
-            //Act
-            var pokemon = _pokemonBuilder.Init(species)
-                .WithHabitat().WithName().WithIsLegendary()
-                .WithDescription(languageKey)
-                .Build();
-
-            //Assert
-            Assert.NotNull(pokemon);
-            Assert.IsType<Pokemon>(pokemon);
-            Assert.Equal(species.Name, pokemon.Name);
-            Assert.Equal(species.IsLegendary, pokemon.IsLegendary);
-            Assert.Null(pokemon.Habitat);
-            Assert.Equal(expectedDescription, pokemon.Description);
-        }
-
-        [Fact]
-        public void GIVEN_null_legendary_WHEN_Build_THEN_return_pokemon()
-        {
-            //Arrang
-            var species = MockValisPokemonSpecies(false, false, isLegendaryNull: true, false, false);
-            var languageKey = "en";
-            var expectedDescription = species.FlavorTextEntries
-                        .FirstOrDefault(s => s.Language.Name.ToLower() == languageKey)?.FlavorText;
-
-            //Act
-            var pokemon = _pokemonBuilder.Init(species)
-                .WithHabitat().WithName().WithIsLegendary()
-                .WithDescription(languageKey)
-                .Build();
-
-            //Assert
-            Assert.NotNull(pokemon);
-            Assert.IsType<Pokemon>(pokemon);
-            Assert.Equal(species.Name, pokemon.Name);
-            Assert.Equal(species.Habitat.Name, pokemon.Habitat);
-            Assert.Null(pokemon.IsLegendary);
-            Assert.Equal(expectedDescription, pokemon.Description);
-        }
-
-        private PokemonSpecies MockValisPokemonSpecies(
-            bool isNameNull,
-            bool isHabitatNull,
-            bool isLegendaryNull,
-            bool isDescriptionNull,
-            bool isEnDescriptionNull)
+        private PokemonSpecies MockPokemonSpecies(
+            string name,
+            string habitat,
+            bool? isLegendary,
+            string description)
         {
             return new PokemonSpecies()
             {
-                Name = isNameNull ? null : "mewtwo",
+                Name = name,
                 Habitat = new Habitat()
                 {
-                    Name = isHabitatNull ? null : "rare",
+                    Name = habitat,
                     Url = "https://pokeapi.co/api/v2/pokemon-habitat/5/"
                 },
-                IsLegendary = isLegendaryNull ? null : true,
-                FlavorTextEntries = isDescriptionNull 
-                ? null 
-                :new List<FlavorTextEntry>()
+                IsLegendary = isLegendary,
+                FlavorTextEntries = new List<FlavorTextEntry>()
                 {
                     new FlavorTextEntry()
                     {
-                        FlavorText = "It was created by\na scientist after\nyears of horrific\fgene splicing and\nDNA engineering\nexperiments.",
+                        FlavorText = description,
                         Language = new Language()
                         {
-                            Name =isEnDescriptionNull? null: "en",
+                            Name ="en",
                             Url = "https://pokeapi.co/api/v2/language/9/"
                         },
                         Version= new Version()

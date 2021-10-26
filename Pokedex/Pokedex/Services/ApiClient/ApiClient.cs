@@ -19,7 +19,7 @@ namespace Pokedex.Services.ApiClient
         public async Task<T> GetAsync<T>(string baseUrl) where T : class
         {
             var response = await _restClient.ExecuteAsync(new RestRequest(baseUrl));
-            if (response == null)
+            if (response == null || string.IsNullOrEmpty(response.Content))
             {
                 throw new NullResponseException();
             }

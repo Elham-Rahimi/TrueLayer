@@ -23,7 +23,7 @@ namespace Pokedex.Test.Controllers
         }
 
         [Fact]
-        public async Task GIVEN_Valid_name_WHEN_Called_THEN_Return_Success()
+        public async Task GIVEN_Valid_Name_WHEN_Called_THEN_Return_Success()
         {
             //Arrange
             var pokemon = new Pokemon()
@@ -50,38 +50,6 @@ namespace Pokedex.Test.Controllers
             Assert.Equal(pokemon.Habitat, result.Habitat);
             Assert.Equal(pokemon.IsLegendary, result.IsLegendary);
             Assert.Equal(pokemon.Description, result.Description);
-        }
-
-        [Fact]
-        public async Task GIVEN_Inalid_name_WHEN_Called_THEN_Throw_Exception()
-        {
-            //Arrange
-            var name = "noname";
-            _mockPokemonService
-                .Setup(x => x.GetAsync(name))
-                .Throws<ApiClientNotFoundException>();
-
-            //Act
-
-            //Assert
-            await Assert.ThrowsAsync<ApiClientNotFoundException>(() =>
-                        _pokemonController.Get(name));
-        }
-
-        [Fact]
-        public async Task GIVEN_null_response_WHEN_Called_THEN_Throw_Exception()
-        {
-            //Arrange
-            var name = "pidgeot";
-            _mockPokemonService
-                .Setup(x => x.GetAsync(name))
-                .ReturnsAsync((Pokemon)null);
-
-            //Act
-
-            //Assert
-            await Assert.ThrowsAsync<NullResponseException>(() =>
-                        _pokemonController.Get(name));
         }
 
     }

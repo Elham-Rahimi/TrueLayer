@@ -23,9 +23,10 @@ namespace Pokedex.Test.Services
         }
 
         [Fact]
-        public async Task GIVEN_Available_url_WHEN_Called_THEN_Return_Result()
+        public async Task GIVEN_Success_Response_On_Client_Url_WHEN_Called_THEN_Return_Proper_Result()
         {
             //Arrange
+            var url = "url";
             _mockRestClient
                 .Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new RestResponse
@@ -35,7 +36,7 @@ namespace Pokedex.Test.Services
                 });
 
             //Act
-            var response = await _apiClient.GetAsync<TestModel>("url");
+            var response = await _apiClient.GetAsync<TestModel>(url);
 
             //Assert
             Assert.NotNull(response);
@@ -43,7 +44,7 @@ namespace Pokedex.Test.Services
         }
 
         [Fact]
-        public async Task GIVEN_null_response_WHEN_Called_THEN_throw_exception()
+        public async Task GIVEN_Null_Response_WHEN_Called_THEN_Throw_Exception()
         {
             //Arrange
             _mockRestClient
@@ -57,7 +58,25 @@ namespace Pokedex.Test.Services
         }
 
         [Fact]
-        public async Task GIVEN_notfound_WHEN_Called_THEN_throw_exception()
+        public async Task GIVEN_Content_Null_Response_WHEN_Called_THEN_Throw_Exception()
+        {
+            //Arrange
+            _mockRestClient
+                .Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RestResponse
+                {
+                    Content = null,
+                    StatusCode = HttpStatusCode.OK,
+                });
+
+            //Act
+            //Assert
+            await Assert.ThrowsAsync<NullResponseException>(()
+                => _apiClient.GetAsync<TestModel>("url"));
+        }
+
+        [Fact]
+        public async Task GIVEN_NotOk_WHEN_Called_THEN_Throw_Exception()
         {
             //Arrange
             _mockRestClient
@@ -65,23 +84,6 @@ namespace Pokedex.Test.Services
                 .ReturnsAsync(new RestResponse
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                });
-
-            //Act
-            //Assert
-            await Assert.ThrowsAsync<ApiClientNotFoundException>(()
-                => _apiClient.GetAsync<TestModel>("url"));
-        }
-
-        [Fact]
-        public async Task GIVEN_InternalServerError_WHEN_Called_THEN_throw_exception()
-        {
-            //Arrange
-            _mockRestClient
-                .Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new RestResponse
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
                 });
 
             //Act

@@ -50,10 +50,6 @@ namespace Pokedex.Services.PokemonBuilder
             var description = _species.FlavorTextEntries?
                 .FirstOrDefault(e => e.Language?.Name?.ToLowerInvariant() == languageKey)
                 ?.FlavorText;
-            if(string.IsNullOrEmpty(description))
-            {
-                throw new PokemonNullDescriptionException();
-            }
             _pokemon.Description = description;
             return this;
         }

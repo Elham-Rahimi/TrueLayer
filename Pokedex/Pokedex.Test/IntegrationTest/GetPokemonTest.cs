@@ -52,7 +52,7 @@ namespace Pokedex.Test.IntegrationTest
 
         [Theory]
         [InlineData(" ")]
-        public async Task GIVEN_null_input_WHEN_Call_Api_THEN_NotFound(string pokemonName)
+        public async Task GIVEN_Null_Input_WHEN_Call_Api_THEN_NotFound(string pokemonName)
         {
             //Arrange           
             var requestUrl = GenerateRequestUrl(pokemonName);
@@ -67,7 +67,7 @@ namespace Pokedex.Test.IntegrationTest
 
         [Theory]
         [InlineData("noname")]
-        public async Task GIVEN_invalid_name_WHEN_Call_Api_THEN_NotFound(string pokemonName)
+        public async Task GIVEN_Invalid_Name_WHEN_Call_Api_THEN_NotFound(string pokemonName)
         {
             //Arrange           
             var requestUrl = GenerateRequestUrl(pokemonName);
