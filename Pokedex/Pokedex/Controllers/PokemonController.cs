@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Pokedex.Exceptions;
 using Pokedex.Models;
 using Pokedex.Services.PokemonService;
 using System.Threading.Tasks;
@@ -20,6 +21,10 @@ namespace Pokedex.Controllers
         public async Task<ActionResult<PokemonResult>> Get([FromRoute] string name)
         {
             var result = await _pokemonService.GetAsync(name);
+            if (result == null)
+            {
+                throw new NullResponseException();
+            }
             return Ok(new PokemonResult()
             {
                 Name = result.Name,

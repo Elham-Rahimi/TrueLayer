@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Pokedex.Middleware;
 using Pokedex.Services.ApiClient;
 using Pokedex.Services.PokemonService;
 using RestSharp;
@@ -39,6 +40,8 @@ namespace Pokedex
                 c.RoutePrefix = "";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pokedex v1");
             });
+
+            app.UseMiddleware<ExceptionAdapterMiddleware>();
 
             app.UseRouting();
 

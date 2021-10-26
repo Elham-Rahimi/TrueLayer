@@ -51,9 +51,8 @@ namespace Pokedex.Test.IntegrationTest
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData(null)]
-        public async Task GIVEN_null_or_empty_name_WHEN_Call_Api_THEN_NotFound(string pokemonName)
+        [InlineData(" ")]
+        public async Task GIVEN_null_input_WHEN_Call_Api_THEN_NotFound(string pokemonName)
         {
             //Arrange           
             var requestUrl = GenerateRequestUrl(pokemonName);
@@ -83,7 +82,7 @@ namespace Pokedex.Test.IntegrationTest
 
         private string GenerateRequestUrl(string pokemonName)
         {
-            return $"/Pokemon/{pokemonName}";
+            return $"/Pokemon/{pokemonName}/";
         }
     }
 }
