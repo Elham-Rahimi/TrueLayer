@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Pokedex.Services.PokemonBuilder
 {
-    public class PokemonBuilder
+    public class PokemonBuilder : IPokemonBuilder
     {
-        private Pokemon _pokemon = new Pokemon();
+        private Pokemon _pokemon;
         private PokemonSpecies _species;
 
         public Pokemon Build()
@@ -19,6 +19,7 @@ namespace Pokedex.Services.PokemonBuilder
 
         public PokemonBuilder Init(PokemonSpecies species)
         {
+            _pokemon = new Pokemon();
             _species = species;
             return this;
         }
@@ -50,8 +51,15 @@ namespace Pokedex.Services.PokemonBuilder
             var description = _species.FlavorTextEntries?
                 .FirstOrDefault(e => e.Language?.Name?.ToLowerInvariant() == languageKey)
                 ?.FlavorText;
+            description = CleanText(description);
             _pokemon.Description = description;
             return this;
         }
+
+        private string CleanText(string text)
+        {
+            return text?.Replace("\n", " ")?.Replace("\f", " ");   
+        }
+
     }
 }

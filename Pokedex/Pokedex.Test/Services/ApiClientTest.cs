@@ -83,6 +83,7 @@ namespace Pokedex.Test.Services
                 .Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new RestResponse
                 {
+                    Content = "default Not Found message",
                     StatusCode = HttpStatusCode.NotFound,
                 });
 

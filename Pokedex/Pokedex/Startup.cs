@@ -1,17 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Pokedex.Middleware;
 using Pokedex.Services.ApiClient;
+using Pokedex.Services.PokemonBuilder;
 using Pokedex.Services.PokemonService;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pokedex
 {
@@ -28,6 +23,7 @@ namespace Pokedex
             });
             services.AddTransient<IRestClient, RestClient>();
             services.AddTransient<IApiClient, ApiClient>();
+            services.AddTransient<IPokemonBuilder, PokemonBuilder>();
             services.AddTransient<IPokemonService, PokemonService>();
         }
 

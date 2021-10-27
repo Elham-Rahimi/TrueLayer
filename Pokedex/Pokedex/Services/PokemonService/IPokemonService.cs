@@ -6,5 +6,6 @@ namespace Pokedex.Services.PokemonService
     public interface IPokemonService
     {
         Task<Pokemon> GetAsync(string name);
+        Task<Pokemon> GetWithTranslationAsync(string name);
     }
 }

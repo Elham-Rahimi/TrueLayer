@@ -29,7 +29,7 @@ namespace Pokedex.Test.IntegrationTest
                 Name = "pidgeot",
                 Habitat = "forest",
                 IsLegendary = false,
-                Description = "When hunting, it\nskims the surface\nof water at high\fspeed to pick off\nunwary prey such\nas MAGIKARP."
+                Description = "When hunting, it skims the surface of water at high speed to pick off unwary prey such as MAGIKARP."
             };
             var requestUrl = GenerateRequestUrl(pokemonName);
 

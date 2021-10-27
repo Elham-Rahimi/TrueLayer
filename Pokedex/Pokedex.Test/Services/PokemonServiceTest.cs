@@ -10,12 +10,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Pokedex.Services.PokemonBuilder;
+using Pokedex.Services.ApiClient.Exceptions;
 
 namespace Pokedex.Test.Services
 {
     public class PokemonServiceTest
     {
         private Mock<IApiClient> _mockApiClient;
+        private IPokemonBuilder _pokemonBuilder;
         private PokemonService _pokemonService;
         private IConfiguration _configuration;
 
@@ -25,11 +27,12 @@ namespace Pokedex.Test.Services
                     .AddJsonFile("appsettings.json")
                     .Build();
             _mockApiClient = new Mock<IApiClient>();
-            _pokemonService = new PokemonService(_mockApiClient.Object, _configuration);
+            _pokemonBuilder = new PokemonBuilder();
+            _pokemonService = new PokemonService(_mockApiClient.Object, _configuration, _pokemonBuilder);
         }
 
         [Fact]
-        public async Task GIVEN_Valid_Name_WHEN_Called_THEN_Return_Proper_Result()
+        public async Task GIVEN_Valid_Name_WHEN_GetAsync_Called_THEN_Return_Proper_Result()
         {
             //Arrange
             var species = MockPokemonSpecies();
@@ -56,7 +59,7 @@ namespace Pokedex.Test.Services
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public async Task GIVEN_Invalid_Name_WHEN_Called_THEN_Throw_Exception(string pokemonName)
+        public async Task GIVEN_Invalid_Name_WHEN_GetAsync_Called_THEN_Throw_Exception(string pokemonName)
         {
             //Arrange
             //Act
@@ -65,25 +68,183 @@ namespace Pokedex.Test.Services
                 => _pokemonService.GetAsync(pokemonName));
         }
 
-        private PokemonSpecies MockPokemonSpecies()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public async Task GIVEN_Invalid_Name_WHEN_GetWithTranslationAsync_Called_THEN_Throw_Exception(string pokemonName)
+        {
+            //Arrange
+            //Act
+            //Assert
+            await Assert.ThrowsAsync<EntryNameNullException>(()
+                => _pokemonService.GetWithTranslationAsync(pokemonName));
+        }
+
+        [Fact]
+        public async Task GIVEN_Valid_Name_For_NoneLegendary_With_Successful_Translation_WHEN_GetWithTranslationAsync_Called_THEN_Return_Proper_Result()
+        {
+            //Arrange
+            var species = MockPokemonSpecies();
+            var pokeBaseUrl = _configuration["Pokedex:PokeBaseUrl"].Replace("{NAME}", species.Name);
+            var ShakespearURl = _configuration["Pokedex:ShakespeareUrl"].Replace("{DESCRIPTION}", "desc"); ;
+            var expectedDescription = "Shakespeare_translated";
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<PokemonSpecies>(pokeBaseUrl))
+                .ReturnsAsync(species);
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<string>(ShakespearURl))
+                .ReturnsAsync(expectedDescription);
+
+            //Act
+            var result = await _pokemonService.GetWithTranslationAsync(species.Name);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(typeof(Pokemon), result.GetType());
+            Assert.Equal(species.Name, result.Name);
+            Assert.Equal(species.IsLegendary, result.IsLegendary);
+            Assert.Equal(species.Habitat.Name, result.Habitat);
+            Assert.Equal(expectedDescription, result.Description);
+        }
+
+        [Fact]
+        public async Task GIVEN_Valid_Name_For_Cave_Legendary_With_Successful_Translation_WHEN_GetWithTranslationAsync_Called_THEN_Return_Proper_Result()
+        {
+            //Arrange
+            var species = MockPokemonSpecies(isLegendary:true,habitat:"cave");
+            var pokeBaseUrl = _configuration["Pokedex:PokeBaseUrl"].Replace("{NAME}", species.Name);
+            var yodaURl = _configuration["Pokedex:YodaUrl"].Replace("{DESCRIPTION}", "desc"); ;
+            var expectedDescription = "Yoda_translated";
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<PokemonSpecies>(pokeBaseUrl))
+                .ReturnsAsync(species);
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<string>(yodaURl))
+                .ReturnsAsync(expectedDescription);
+
+            //Act
+            var result = await _pokemonService.GetWithTranslationAsync(species.Name);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(typeof(Pokemon), result.GetType());
+            Assert.Equal(species.Name, result.Name);
+            Assert.Equal(species.IsLegendary, result.IsLegendary);
+            Assert.Equal(species.Habitat.Name, result.Habitat);
+            Assert.Equal(expectedDescription, result.Description);
+        }
+
+        [Fact]
+        public async Task GIVEN_Valid_Name_For_Just_Legendary_With_Successful_Translation_WHEN_GetWithTranslationAsync_Called_THEN_Return_Proper_Result()
+        {
+            //Arrange
+            var species = MockPokemonSpecies(isLegendary: true);
+            var pokeBaseUrl = _configuration["Pokedex:PokeBaseUrl"].Replace("{NAME}", species.Name);
+            var yodaURl = _configuration["Pokedex:YodaUrl"].Replace("{DESCRIPTION}", "desc"); ;
+            var expectedDescription = "Yoda_translated";
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<PokemonSpecies>(pokeBaseUrl))
+                .ReturnsAsync(species);
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<string>(yodaURl))
+                .ReturnsAsync(expectedDescription);
+
+            //Act
+            var result = await _pokemonService.GetWithTranslationAsync(species.Name);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(typeof(Pokemon), result.GetType());
+            Assert.Equal(species.Name, result.Name);
+            Assert.Equal(species.IsLegendary, result.IsLegendary);
+            Assert.Equal(species.Habitat.Name, result.Habitat);
+            Assert.Equal(expectedDescription, result.Description);
+        }
+
+        [Fact]
+        public async Task GIVEN_Valid_Name_For_Just_Cave_With_Successful_Translation_WHEN_GetWithTranslationAsync_Called_THEN_Return_Proper_Result()
+        {
+            //Arrange
+            var species = MockPokemonSpecies(habitat: "cave");
+            var pokeBaseUrl = _configuration["Pokedex:PokeBaseUrl"].Replace("{NAME}", species.Name);
+            var yodaURl = _configuration["Pokedex:YodaUrl"].Replace("{DESCRIPTION}", "desc"); ;
+            var expectedDescription = "Yoda_translated";
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<PokemonSpecies>(pokeBaseUrl))
+                .ReturnsAsync(species);
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<string>(yodaURl))
+                .ReturnsAsync(expectedDescription);
+
+            //Act
+            var result = await _pokemonService.GetWithTranslationAsync(species.Name);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(typeof(Pokemon), result.GetType());
+            Assert.Equal(species.Name, result.Name);
+            Assert.Equal(species.IsLegendary, result.IsLegendary);
+            Assert.Equal(species.Habitat.Name, result.Habitat);
+            Assert.Equal(expectedDescription, result.Description);
+        }
+
+        [Fact]
+        public async Task GIVEN_Valid_Name_With_Failure_Translation_WHEN_GetWithTranslationAsync_Called_THEN_Return_Proper_Result()
+        {
+            //Arrange
+            var species = MockPokemonSpecies(description:"desc");
+            var pokeBaseUrl = _configuration["Pokedex:PokeBaseUrl"].Replace("{NAME}", species.Name);
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<PokemonSpecies>(pokeBaseUrl))
+                .ReturnsAsync(species);
+
+            _mockApiClient
+                .Setup(x => x.GetAsync<string>(It.IsAny<string>()))
+                .Throws<ApiClientNotFoundException>();
+
+            //Act
+            var result = await _pokemonService.GetWithTranslationAsync(species.Name);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(typeof(Pokemon), result.GetType());
+            Assert.Equal(species.Name, result.Name);
+            Assert.Equal(species.IsLegendary, result.IsLegendary);
+            Assert.Equal(species.Habitat.Name, result.Habitat);
+            Assert.Equal("desc", result.Description);
+        }
+        private PokemonSpecies MockPokemonSpecies(
+             string name = "mewtwo",
+             string habitat = "forest",
+             bool? isLegendary = false,
+             string description = "desc")
         {
             return new PokemonSpecies()
             {
-                Name = "mewtwo",
+                Name = name,
                 Habitat = new Habitat()
                 {
-                    Name = "rare",
+                    Name = habitat,
                     Url = "https://pokeapi.co/api/v2/pokemon-habitat/5/"
                 },
-                IsLegendary = true,
+                IsLegendary = isLegendary,
                 FlavorTextEntries = new List<FlavorTextEntry>()
                 {
                     new FlavorTextEntry()
                     {
-                        FlavorText = "It was created by\na scientist after\nyears of horrific\fgene splicing and\nDNA engineering\nexperiments.",
+                        FlavorText = description,
                         Language = new Language()
                         {
-                            Name = "en",
+                            Name ="en",
                             Url = "https://pokeapi.co/api/v2/language/9/"
                         },
                         Version= new Version()

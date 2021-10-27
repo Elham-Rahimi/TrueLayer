@@ -13,13 +13,13 @@ namespace Pokedex.Services.PokemonService
     {
         private readonly IApiClient _apiClient;
         private IConfiguration _configuration;
-        private PokemonBuilder.PokemonBuilder _pokemonBuilder;
+        private IPokemonBuilder _pokemonBuilder;
 
-        public PokemonService(IApiClient apiClient, IConfiguration configuration)
+        public PokemonService(IApiClient apiClient, IConfiguration configuration, IPokemonBuilder pokemonBuilder)
         {
             _apiClient = apiClient;
             _configuration = configuration;
-            _pokemonBuilder = new PokemonBuilder.PokemonBuilder();
+            _pokemonBuilder = pokemonBuilder;
         }
 
         public async Task<Pokemon> GetAsync(string name)
@@ -39,9 +39,45 @@ namespace Pokedex.Services.PokemonService
                 .Build();
         }
 
+        public async Task<Pokemon> GetWithTranslationAsync(string name)
+        {
+            var pokemon = await GetAsync(name);
+            return await TranslateDescription(pokemon);
+
+        }
+        private async Task<Pokemon> TranslateDescription(Pokemon pokemon)
+        {
+            try
+            {
+                if (pokemon.Habitat == "cave" || (pokemon.IsLegendary.HasValue && pokemon.IsLegendary.Value))
+                {
+                    pokemon.Description = await _apiClient.GetAsync<string>(GetYodaBaseUrl(pokemon.Description));
+                }
+                else
+                {
+                    pokemon.Description = await _apiClient.GetAsync<string>(GetShakespeareBaseUrl(pokemon.Description)); ;
+
+                }
+            }
+            catch
+            {
+            }
+            return pokemon;
+        }
+
         private string GetPokeBaseUrl(string name)
         {
             return _configuration["Pokedex:PokeBaseUrl"].Replace("{NAME}", name);
+        }
+
+        private string GetYodaBaseUrl(string description)
+        {
+            return _configuration["Pokedex:YodaUrl"].Replace("{DESCRIPTION}", description);
+        }
+
+        private string GetShakespeareBaseUrl(string description)
+        {
+            return _configuration["Pokedex:ShakespeareUrl"].Replace("{DESCRIPTION}", description);
         }
     }
 }

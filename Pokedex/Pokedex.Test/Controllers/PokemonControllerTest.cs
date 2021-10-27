@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Pokedex.Controllers;
-using Pokedex.Exceptions;
 using Pokedex.Models;
-using Pokedex.Services.ApiClient.Exceptions;
 using Pokedex.Services.PokemonBuilder;
 using Pokedex.Services.PokemonService;
 using System.Threading.Tasks;
@@ -23,7 +21,7 @@ namespace Pokedex.Test.Controllers
         }
 
         [Fact]
-        public async Task GIVEN_Valid_Name_WHEN_Called_THEN_Return_Success()
+        public async Task GIVEN_Valid_Name_WHEN_Get_Called_THEN_Return_Success()
         {
             //Arrange
             var pokemon = new Pokemon()
@@ -40,6 +38,36 @@ namespace Pokedex.Test.Controllers
 
             //Act
             var response = await _pokemonController.Get(pokemon.Name);
+
+            //Assert
+            Assert.NotNull(response.Result);
+            Assert.IsType<OkObjectResult>(response.Result);
+
+            var result = ((OkObjectResult)response.Result).Value as PokemonResult;
+            Assert.Equal(pokemon.Name, result.Name);
+            Assert.Equal(pokemon.Habitat, result.Habitat);
+            Assert.Equal(pokemon.IsLegendary, result.IsLegendary);
+            Assert.Equal(pokemon.Description, result.Description);
+        }
+
+        [Fact]
+        public async Task GIVEN_Valid_Name_WHEN_GetTranslated_Called_THEN_Return_Success()
+        {
+            //Arrange
+            var pokemon = new Pokemon()
+            {
+                Name = "mewtwo",
+                Habitat = "rare",
+                IsLegendary = true,
+                Description = "Translated"
+            };
+
+            _mockPokemonService
+                .Setup(x => x.GetWithTranslationAsync(pokemon.Name))
+                .Returns(Task.FromResult(pokemon));
+
+            //Act
+            var response = await _pokemonController.GetTranslated(pokemon.Name);
 
             //Assert
             Assert.NotNull(response.Result);
