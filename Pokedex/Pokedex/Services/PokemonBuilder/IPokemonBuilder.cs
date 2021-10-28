@@ -1,14 +1,16 @@
 ﻿using Pokedex.Services.PokemonService.Contracts;
+using System.Threading.Tasks;
 
 namespace Pokedex.Services.PokemonBuilder
 {
     public interface IPokemonBuilder
     {
         Pokemon Build();
-        PokemonBuilder Init(PokemonSpecies species);
+        Task<PokemonBuilder> Init(string name);
         PokemonBuilder WithName();
         PokemonBuilder WithHabitat();
         PokemonBuilder WithIsLegendary();
-        PokemonBuilder WithDescription(string languageKey);
+        PokemonBuilder WithDescription();
+        Task<Pokemon> BuildTranslatedAsync();
     }
 }
